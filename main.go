@@ -5,23 +5,31 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/pat"
 	"github.com/russross/blackfriday"
 )
 
 func main() {
 	fmt.Println("Heya")
 
-	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/markdown", markdown)
-	http.Handle("/", http.FileServer(http.Dir("public")))
+	r := pat.New()
+
+	r.Get("/hello", hello)
+	r.Post("/markdown", markdown)
+
+	r.Router.PathPrefix("/").Handler(http.FileServer(http.Dir("public")))
+
+	// http.HandleFunc("/hello", hello)
+	// http.HandleFunc("/markdown", markdown)
+	// http.Handle("/", http.FileServer(http.Dir("public")))
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	fmt.Println("Listening on localhost:8080")
-	http.ListenAndServe(":"+port, nil)
+	fmt.Println("Listening on localhost" + port)
+	http.ListenAndServe(":"+port, r)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
