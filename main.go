@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/russross/blackfriday"
 )
@@ -14,8 +15,13 @@ func main() {
 	http.HandleFunc("/markdown", markdown)
 	http.Handle("/", http.FileServer(http.Dir("public")))
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	fmt.Println("Listening on localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":"+port, nil)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
